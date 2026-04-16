@@ -1,3 +1,15 @@
+"""
+Interactive Dashboard for Decentralized P2P Energy Trading Simulation
+
+This project is made by Quantum Coders, a team from VSSUT Burla.
+Team Members:
+- Arsalan Ali
+- Brahamananda Sahoo
+- Kritika Tekriwal
+
+Built with Streamlit for real-time visualization of energy flows, trading networks, and blockchain transactions.
+"""
+
 import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
@@ -62,6 +74,7 @@ def main():
     st.set_page_config(page_title="Decentralized P2P Energy Trading Simulation", layout="wide")
 
     st.title("Decentralized P2P Energy Trading Simulation")
+    st.markdown("*Made by Quantum Coders, VSSUT Burla*")
     st.markdown(
         "This interactive simulator demonstrates how a local energy community can use decentralized bidding, smart contracts, and blockchain immutability to trade renewable power in real time."
     )
@@ -126,6 +139,7 @@ def main():
 
         st.success("Simulation run complete. The blockchain is valid: {}".format(simulator.blockchain.is_valid()))
         st.markdown("_Use the sidebar to adjust community size, volatility, and pricing preferences, then rerun the simulation._")
+        st.markdown("**Project by Quantum Coders, VSSUT Burla**")
     else:
         st.info("Configure the community and press Run simulation to see P2P energy trading in action.")
 

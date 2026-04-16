@@ -1,5 +1,12 @@
 # Decentralized P2P Energy Trading Simulation
 
+This project is made by **Quantum Coders**, a team from **VSSUT Burla** (Veer Surendra Sai University of Technology, Burla).
+
+## Team Members
+- **Arsalan Ali**
+- **Brahamananda Sahoo**
+- **Kritika Tekriwal**
+
 This repository contains a Python-based simulation of a decentralized peer-to-peer energy trading platform with a lightweight blockchain-like ledger and interactive dashboard.
 
 ## Features
