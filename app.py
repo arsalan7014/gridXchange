@@ -73,6 +73,23 @@ def draw_trade_network(simulator):
 def main():
     st.set_page_config(page_title="Decentralized P2P Energy Trading Simulation", layout="wide")
 
+    # Custom CSS for black background
+    st.markdown("""
+    <style>
+    .stApp {
+        background-color: black;
+        color: white;
+    }
+    .stMarkdown, .stText, .stHeader, .stSubheader {
+        color: white !important;
+    }
+    .stDataFrame, .stTable {
+        background-color: #333;
+        color: white;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
     st.title("Decentralized P2P Energy Trading Simulation")
     st.markdown("*Made by Quantum Coders, VSSUT Burla*")
     st.markdown(
