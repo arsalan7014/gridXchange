@@ -1,7 +1,7 @@
 """
 Decentralized P2P Energy Trading Simulation
 
-This project is made by Quantum Coders, a team from VSSUT Burla.
+This project is made by Quantum Coders, a team from VSSUT, Burla.
 Team Members:
 - Arsalan Ali
 - Brahamananda Sahoo
