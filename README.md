@@ -37,7 +37,7 @@ pip install -r requirements.txt
 
 If `streamlit` is not found on your PATH, use Python's module invocation instead:
 
-```bash
+```bash(Recomended)
 python -m streamlit run app.py
 ```
 
