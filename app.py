@@ -76,12 +76,15 @@ def main():
     # Set background color to blue
     st.markdown(
         """
+"""
         <style>
         .stApp {
             background-color: #1e3a8a;  /* Blue background */
             color: white;
         }
         </style>
+
+"""
         """,
         unsafe_allow_html=True
     )
