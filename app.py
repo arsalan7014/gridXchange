@@ -78,7 +78,7 @@ def main():
         """
         <style>
         .stApp {
-            background-color: #1e3a8a;  /* Blue background */
+            background-color: #0e1117;  /* Blue background */
             color: white;
         }
         </style>
