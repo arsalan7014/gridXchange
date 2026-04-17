@@ -9,7 +9,7 @@ Team Members:
 
 Built with Streamlit for real-time visualization of energy flows, trading networks, and blockchain transactions.
 """
-
+"""
 import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
@@ -155,6 +155,215 @@ def main():
         st.markdown("**Project by Quantum Coders, VSSUT Burla**")
     else:
         st.info("Configure the community and press Run simulation to see P2P energy trading in action.")
+
+
+if __name__ == "__main__":
+    main()
+"""
+
+import streamlit as st
+import plotly.express as px
+import plotly.graph_objects as go
+import networkx as nx
+
+from energy_trading_sim import EnergyTradingSimulator
+
+
+def draw_trade_network(simulator):
+    edges = simulator.get_trade_network()
+    if not edges:
+        st.info("No peer-to-peer trades available yet.")
+        return
+
+    graph = nx.DiGraph()
+    for agent_id, agent in simulator.agents.items():
+        graph.add_node(agent_id, label=agent.name, type=agent.agent_type)
+
+    for edge in edges:
+        graph.add_edge(edge["source"], edge["target"], weight=edge["weight"], price=edge["price"])
+
+    pos = nx.spring_layout(graph, seed=42)
+
+    edge_x, edge_y = [], []
+    for source, target in graph.edges():
+        x0, y0 = pos[source]
+        x1, y1 = pos[target]
+        edge_x += [x0, x1, None]
+        edge_y += [y0, y1, None]
+
+    node_x = [pos[node][0] for node in graph.nodes()]
+    node_y = [pos[node][1] for node in graph.nodes()]
+    node_text = [f"{graph.nodes[n]['label']} ({graph.nodes[n]['type']})" for n in graph.nodes()]
+
+    edge_trace = go.Scatter(
+        x=edge_x,
+        y=edge_y,
+        line=dict(width=1, color="#888"),
+        hoverinfo="none",
+        mode="lines",
+    )
+
+    node_trace = go.Scatter(
+        x=node_x,
+        y=node_y,
+        mode="markers+text",
+        marker=dict(
+            size=24,
+            color=[
+                "#00ff9c" if graph.nodes[n]["type"] == "prosumer" else "#00c3ff"
+                for n in graph.nodes()
+            ],
+        ),
+        text=node_text,
+        textposition="top center",
+        hoverinfo="text",
+    )
+
+    fig = go.Figure(data=[edge_trace, node_trace])
+    fig.update_layout(
+        title="P2P Trading Network",
+        showlegend=False,
+        margin=dict(l=20, r=20, t=40, b=20),
+        plot_bgcolor="#0e1117",
+        paper_bgcolor="#0e1117",
+        font=dict(color="white"),
+        xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+        yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+
+def main():
+    st.set_page_config(
+        page_title="P2P Energy Trading",
+        layout="wide"
+    )
+
+    # 🔥 ADVANCED UI STYLING
+    st.markdown(
+        """
+        <style>
+        .stApp {
+            background: linear-gradient(135deg, #141e30, #243b55);
+            color: white;
+        }
+
+        .stDataFrame, .stTable {
+            background-color: rgba(255,255,255,0.05);
+        }
+
+        .stMetric {
+            background-color: rgba(255,255,255,0.05);
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        div[data-testid="stSidebar"] {
+            background-color: #0e1117;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+    st.title("⚡ Decentralized P2P Energy Trading Simulation")
+    st.markdown("*Quantum Coders | VSSUT Burla*")
+
+    with st.sidebar:
+        st.header("Controls")
+
+        num_prosumers = st.slider("Prosumers", 1, 12, 5)
+        num_consumers = st.slider("Consumers", 1, 12, 5)
+        hours = st.slider("Hours", 4, 48, 24)
+
+        generation_variability = st.slider("Generation Variability", 0.1, 5.0, 1.8)
+        demand_variability = st.slider("Demand Variability", 0.1, 4.0, 1.5)
+
+        grid_price = st.slider("Grid Price ($/kWh)", 0.05, 0.5, 0.22)
+        smart_price_factor = st.slider("Smart Pricing Factor", 0.8, 1.2, 1.0)
+
+        run_sim = st.button("Run Simulation")
+
+    simulator = EnergyTradingSimulator(
+        num_prosumers=num_prosumers,
+        num_consumers=num_consumers,
+        generation_variability=generation_variability,
+        demand_variability=demand_variability,
+        grid_price=grid_price,
+        grid_supply_price=round(grid_price * 0.48, 3),
+        price_volatility=smart_price_factor,
+    )
+
+    if run_sim:
+        summary = simulator.run(hours=hours)
+
+        st.subheader("Market Summary")
+
+        col1, col2, col3, col4 = st.columns(4)
+        col1.metric("Volume", f"{summary['traded_volume'].sum():.2f}")
+        col2.metric("Avg Price", f"${summary['price'].mean():.3f}")
+        col3.metric("Efficiency", f"{summary['efficiency'].mean():.2%}")
+        col4.metric("Grid Load", f"{summary['grid_load'].mean():.2f}")
+
+        st.markdown("---")
+
+        # 📈 PRICE + VOLUME
+        st.subheader("Price & Volume")
+
+        chart_data = summary[["hour", "price", "traded_volume"]].melt(
+            id_vars=["hour"], var_name="metric", value_name="value"
+        )
+
+        fig = px.line(chart_data, x="hour", y="value", color="metric", markers=True)
+        fig.update_layout(
+            plot_bgcolor="#0e1117",
+            paper_bgcolor="#0e1117",
+            font=dict(color="white"),
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
+
+        # 👥 AGENTS
+        st.subheader("Agent Status")
+        st.dataframe(simulator.get_agent_summary())
+
+        # 🔗 BLOCKCHAIN
+        st.subheader("Blockchain")
+        st.dataframe(simulator.get_blockchain_history())
+
+        st.subheader("Transactions")
+        st.dataframe(
+            simulator.get_transaction_ledger()
+            .sort_values(by="block_index", ascending=False)
+            .head(20)
+        )
+
+        # 🌐 NETWORK
+        st.subheader("Trading Network")
+        draw_trade_network(simulator)
+
+        # 📊 DIAGNOSTICS
+        st.subheader("Diagnostics")
+
+        fig2 = px.area(
+            summary,
+            x="hour",
+            y=["efficiency", "grid_load", "cost_savings"],
+        )
+
+        fig2.update_layout(
+            plot_bgcolor="#0e1117",
+            paper_bgcolor="#0e1117",
+            font=dict(color="white"),
+        )
+
+        st.plotly_chart(fig2, use_container_width=True)
+
+        st.success(f"Blockchain valid: {simulator.blockchain.is_valid()}")
+
+    else:
+        st.info("Set parameters and run simulation.")
 
 
 if __name__ == "__main__":
